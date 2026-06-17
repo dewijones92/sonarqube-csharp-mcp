@@ -10,7 +10,7 @@
   "packages": [
     {
       "registryType": "oci",
-      "identifier": "ghcr.io/dewijones92/sonarqube-csharp-mcp:latest",
+      "identifier": "ghcr.io/dewijones92/sonarqube-csharp-mcp:0.1.0",
       "transport": {
         "type": "stdio"
       },

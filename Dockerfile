@@ -19,5 +19,8 @@ ENV SONARQUBE_URL=https://sonarcloud.io \
     SONAR_ANALYZER_DIR=/app/analyzers \
     DOTNET_CLI_TELEMETRY_OPTOUT=1
 
+# Proves image ownership to the MCP Registry; MUST match the name in server.json.
+LABEL io.modelcontextprotocol.server.name="io.github.dewijones92/sonarqube-csharp-mcp"
+
 # stdio MCP server: JSON-RPC over stdin/stdout.
 ENTRYPOINT ["dotnet", "SonarCsharpMcp.dll"]

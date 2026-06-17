@@ -8,6 +8,45 @@ snippets: its `analyze_code_snippet` tool runs on `sonarlint-core`, whose standa
 analyzer set has **no C# plugin** (the C# analyzer is a Roslyn/MSBuild analyzer). This
 server fills that one gap and is meant to run **alongside** the official server.
 
+## Quickstart
+
+You need **Docker** and a **SonarCloud/SonarQube token** (SonarCloud → *My Account →
+Security → Generate Tokens*). No clone or build — the image is public on GHCR.
+
+**1. Add the server to your MCP client** (token is the only required config):
+
+```bash
+# Claude Code
+claude mcp add sonarqube-csharp -- \
+  docker run --rm -i -e SONARQUBE_TOKEN=<your-token> \
+  ghcr.io/dewijones92/sonarqube-csharp-mcp:latest
+```
+
+```jsonc
+// Claude Desktop / Cursor / any MCP client
+"sonarqube-csharp": {
+  "command": "docker",
+  "args": ["run","--rm","-i","-e","SONARQUBE_TOKEN",
+           "ghcr.io/dewijones92/sonarqube-csharp-mcp:latest"],
+  "env": { "SONARQUBE_TOKEN": "<your-token>" }
+}
+```
+
+Self-hosted SonarQube Server: also pass `-e SONARQUBE_URL` / set `SONARQUBE_URL` to your
+server (and skip the organization).
+
+**2. Restart your client, then ask your agent**, e.g.:
+
+> "Analyze this C# file with Sonar against org `myorg`, project `MyProject`" — and paste the code.
+
+`organization` and `projectKey` are per-call, so one running server can target **any org
+or project your token can access**. Set `SONARQUBE_ORG` / `SONARQUBE_PROJECT_KEY` in `env`
+as defaults if you mostly use one. Need project keys? Use the official SonarQube MCP
+server's `search_my_sonarqube_projects`.
+
+See [Configure](#configure-claude-code-alongside-the-official-server) and
+[Tool: `analyze_csharp`](#tool-analyze_csharp) below for full details.
+
 ## How it works
 
 - Reads the project's **live C# quality profile** from SonarCloud (the same "Sonar way"

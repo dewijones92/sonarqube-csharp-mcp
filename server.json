@@ -1,0 +1,47 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.dewijones92/sonarqube-csharp-mcp",
+  "description": "Analyze C# code with SonarAnalyzer.CSharp against your project's live SonarQube/SonarCloud quality profile. Complements the official SonarQube MCP server, which cannot analyze C#.",
+  "repository": {
+    "url": "https://github.com/dewijones92/sonarqube-csharp-mcp",
+    "source": "github"
+  },
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "oci",
+      "identifier": "ghcr.io/dewijones92/sonarqube-csharp-mcp:latest",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "description": "Your SonarQube/SonarCloud user token",
+          "isRequired": true,
+          "format": "string",
+          "isSecret": true,
+          "name": "SONARQUBE_TOKEN"
+        },
+        {
+          "description": "Your SonarQube Cloud organization key (required for SonarCloud; omit for SonarQube Server)",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true,
+          "name": "SONARQUBE_ORG"
+        },
+        {
+          "description": "Your SonarQube Server URL (defaults to https://sonarcloud.io)",
+          "isRequired": false,
+          "format": "string",
+          "name": "SONARQUBE_URL"
+        },
+        {
+          "description": "Default project key whose C# quality profile is used",
+          "isRequired": false,
+          "format": "string",
+          "name": "SONARQUBE_PROJECT_KEY"
+        }
+      ]
+    }
+  ]
+}

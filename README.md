@@ -78,15 +78,21 @@ docker build -t sonarqube-csharp-mcp:latest .
 | Arg | Required | Description |
 |-----|----------|-------------|
 | `fileContent` | yes | Complete C# file content to analyze. |
-| `projectKey` | no | Defaults to `SONARQUBE_PROJECT_KEY`. Selects which profile to use. |
+| `projectKey` | no | Project whose quality profile to use. Defaults to `SONARQUBE_PROJECT_KEY`. |
+| `organization` | no | SonarCloud org. Defaults to `SONARQUBE_ORG`. Override per call to analyze **any org/project your token can access**; omit for SonarQube Server. |
 | `codeSnippet` | no | Only issues overlapping this region are returned. |
+
+`projectKey` and `organization` are per-call, so a single running server can target any
+project in any organization the token can reach — the `SONARQUBE_*` env vars are just
+defaults. (Use the official SonarQube MCP server's `search_my_sonarqube_projects` to
+discover project keys.)
 
 ## Environment
 
 | Var | Default | Purpose |
 |-----|---------|---------|
 | `SONARQUBE_TOKEN` | — | API token, sent as the basic-auth username (works for SonarCloud and SonarQube Server). |
-| `SONARQUBE_ORG` | — | SonarCloud organization key. **Required for SonarCloud; leave unset for self-hosted SonarQube Server.** |
+| `SONARQUBE_ORG` | — | Default SonarCloud organization key (overridable per call via the `organization` arg). **Needed for SonarCloud; leave unset for self-hosted SonarQube Server.** |
 | `SONARQUBE_URL` | `https://sonarcloud.io` | API base. Point at your server for self-hosted SonarQube. |
 | `SONARQUBE_PROJECT_KEY` | — | Default project key. |
 | `SONAR_ANALYZER_DIR` | `/app/analyzers` | Where the analyzer DLLs live. |

@@ -64,16 +64,20 @@ public sealed class AnalysisEngine
         IReadOnlyDictionary<string, RuleMeta> Rules, string SonarLintXml);
 
     public async Task<string> AnalyzeAsync(string fileContent, string? projectKey,
-        string? codeSnippet, CancellationToken ct)
+        string? organization, string? codeSnippet, CancellationToken ct)
     {
         var key = projectKey ?? _defaultProjectKey;
         if (string.IsNullOrWhiteSpace(key))
             return Error("No project key provided and SONARQUBE_PROJECT_KEY is not set.");
 
+        // Per-call org wins over the SONARQUBE_ORG default, so one running server can target
+        // any organization (and any project within it) the token can access.
+        var org = !string.IsNullOrWhiteSpace(organization) ? organization! : _org;
+
         ProfileConfig profile;
         try
         {
-            profile = await EnsureProfileAsync(key!, ct);
+            profile = await EnsureProfileAsync(key!, org, ct);
         }
         catch (Exception ex)
         {
@@ -211,18 +215,20 @@ public sealed class AnalysisEngine
 
     // ---- DRY profile fetch ----------------------------------------------
 
-    private async Task<ProfileConfig> EnsureProfileAsync(string projectKey, CancellationToken ct)
+    private async Task<ProfileConfig> EnsureProfileAsync(string projectKey, string? organization, CancellationToken ct)
     {
-        if (_profileCache.TryGetValue(projectKey, out var cached))
+        // Cache per (organization, project) — the same project key could exist in another org.
+        var cacheKey = $"{organization}|{projectKey}";
+        if (_profileCache.TryGetValue(cacheKey, out var cached))
             return cached;
 
         await _profileLock.WaitAsync(ct);
         try
         {
-            if (_profileCache.TryGetValue(projectKey, out cached))
+            if (_profileCache.TryGetValue(cacheKey, out cached))
                 return cached;
-            var profile = await FetchProfileAsync(projectKey, ct);
-            _profileCache[projectKey] = profile;
+            var profile = await FetchProfileAsync(projectKey, organization, ct);
+            _profileCache[cacheKey] = profile;
             return profile;
         }
         finally
@@ -231,11 +237,11 @@ public sealed class AnalysisEngine
         }
     }
 
-    private async Task<ProfileConfig> FetchProfileAsync(string projectKey, CancellationToken ct)
+    private async Task<ProfileConfig> FetchProfileAsync(string projectKey, string? organization, CancellationToken ct)
     {
         // SonarCloud requires &organization; self-hosted SonarQube Server has no organizations,
-        // so only include it when configured.
-        var org = string.IsNullOrEmpty(_org) ? "" : $"organization={Uri.EscapeDataString(_org)}&";
+        // so only include it when one is given.
+        var org = string.IsNullOrEmpty(organization) ? "" : $"organization={Uri.EscapeDataString(organization)}&";
 
         var qpUrl = $"{_baseUrl}/api/qualityprofiles/search?{org}project={Uri.EscapeDataString(projectKey)}";
         var qpDoc = JsonNode.Parse(await _http.GetStringAsync(qpUrl, ct))!;

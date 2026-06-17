@@ -17,12 +17,14 @@ public static class AnalysisTools
         AnalysisEngine engine,
         [Description("Complete C# file content to analyze.")]
         string fileContent,
-        [Description("The SonarQube/SonarCloud project key (defaults to the SONARQUBE_PROJECT_KEY env var).")]
+        [Description("The SonarQube/SonarCloud project key whose quality profile to use (defaults to the SONARQUBE_PROJECT_KEY env var).")]
         string? projectKey = null,
+        [Description("The SonarCloud organization key (defaults to the SONARQUBE_ORG env var). Lets you target any org your token can access; omit for self-hosted SonarQube Server.")]
+        string? organization = null,
         [Description("Optional code snippet; only issues overlapping this region are returned. Must match content within fileContent.")]
         string? codeSnippet = null,
         CancellationToken cancellationToken = default)
     {
-        return engine.AnalyzeAsync(fileContent, projectKey, codeSnippet, cancellationToken);
+        return engine.AnalyzeAsync(fileContent, projectKey, organization, codeSnippet, cancellationToken);
     }
 }

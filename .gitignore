@@ -1,0 +1,16 @@
+# Build output
+**/bin/
+**/obj/
+[Bb]in/
+[Oo]bj/
+
+# Local analysis artifacts
+*.sarif
+
+# IDE
+.vs/
+.idea/
+*.user
+
+# OS
+.DS_Store

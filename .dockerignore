@@ -1,0 +1,6 @@
+**/bin/
+**/obj/
+scaffold/
+test-harness.py
+*.md
+.git/

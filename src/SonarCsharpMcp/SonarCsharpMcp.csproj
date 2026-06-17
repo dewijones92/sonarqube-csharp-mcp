@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>SonarCsharpMcp</AssemblyName>
+    <RootNamespace>SonarCsharpMcp</RootNamespace>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.9" />
+    <PackageReference Include="ModelContextProtocol" Version="1.4.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+    <!-- Pulled in only to obtain the analyzer DLLs; do not run it against our own build. -->
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="10.18.0.131500"
+                      GeneratePathProperty="true" ExcludeAssets="all" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!-- Copy the SonarAnalyzer analyzer assemblies next to our app so we can load them at runtime. -->
+  <Target Name="CopySonarAnalyzers" AfterTargets="Build;Publish">
+    <ItemGroup>
+      <_SonarDll Include="$(PkgSonarAnalyzer_CSharp)\analyzers\**\*.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_SonarDll)" DestinationFolder="$(OutDir)analyzers" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_SonarDll)" DestinationFolder="$(PublishDir)analyzers"
+          SkipUnchangedFiles="true" Condition="'$(PublishDir)' != ''" />
+  </Target>
+
+</Project>
